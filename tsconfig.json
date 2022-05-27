@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+      "lib": ["es2018"],
+      "target": "es2018",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "strict": true,
+      "removeComments": true,
+      "esModuleInterop": true,
+      "outDir": "dist",
+      "resolveJsonModule": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "sourceMap": true,
+      "baseUrl": "src",
+      "paths": {
+          "@/*": ["*"]
+      }
+  },
+  "include": ["scripts/**/*.ts", "test/**/*.ts", "typechain/**/*.ts", "tmp/nor.test.ts"],
+  "files": ["./hardhat.config.ts"]
+}
