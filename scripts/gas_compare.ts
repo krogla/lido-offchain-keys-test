@@ -17,36 +17,34 @@ async function main() {
   await subm.deployed()
   await nor.setSubmitter(subm.address)
 
-  const keysToDeposit = 5
+  const keysToDeposit = 100
   const treeSizes = [2, 4, 8, 16, 32, 64, 1024]
   const keysPerBatches = [1, 2, 3, 4, 8, 16]
 
   const [owner, ...ops] = await ethers.getSigners()
 
-  const data = []
+  const gasDeposit = []
+  const gasAddRoot = []
   let line = [0]
+  let line2 = [0]
   for (const keysPerBatch of keysPerBatches) {
     line.push(keysPerBatch)
   }
-  data.push(line)
-  // for (const keysToDeposit of keysToDeposits) {
+  gasDeposit.push(line)
+  gasAddRoot.push(line)
+
   for (const treeSize of treeSizes) {
     line = [treeSize]
+    line2 = [treeSize]
     for (const keysPerBatch of keysPerBatches) {
       await test1(keysToDeposit, treeSize, keysPerBatch)
-      data.push(line)
+      gasDeposit.push(line)
+      gasAddRoot.push(line2)
     }
-    // }
   }
 
-  console.log(data)
-  const lineArray: string[] = []
-  data.forEach(function (infoArray: any[], index: number) {
-    const line = infoArray.join(",")
-    lineArray.push(index == 0 ? "data:text/csv;charset=utf-8," + line : line)
-  })
-  const csvContent = lineArray.join("\n")
-  writeFileSync("compare.csv", csvContent)
+  writeCSV(gasDeposit, "treeSize \\ keysPerBatch", "gas_per_1key_deposit.csv")
+  writeCSV(gasAddRoot, "treeSize \\ keysPerBatch", "gas_per_1root_add.csv")
 
   async function test1(keysToDeposit: number, treeSize: number, keysPerBatch: number) {
     const treeCnt = Math.ceil(keysToDeposit / keysPerBatch / treeSize)
@@ -79,10 +77,26 @@ async function main() {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const tx = await subm.depositBufferedEther(depositNonce, keysToDeposit, keysPrepared, proofsPrepared, { gasLimit: 30000000 })
     const r = await tx.wait()
-    console.log("totalUsedKeys:", totalUsedKeys, "gasUsed:", r.gasUsed.toNumber())
+    console.log("Add root gas used:", cost.toNumber(), "Deposit gas used:", r.gasUsed.toNumber())
     line.push(r.gasUsed.toNumber() / keysToDeposit)
+    line2.push(cost.toNumber() / treeCnt)
     await network.provider.send("evm_revert", [snapshotId])
   }
+}
+
+function writeCSV(data: any[], legend = "", filename = "data.csv") {
+  const lineArray: string[] = []
+  data.forEach(function (infoArray: any[], index: number) {
+    if (index == 0 && lineArray.length == 0) {
+      infoArray[0] = legend
+    }
+    const line = infoArray.join(",")
+    // lineArray.push(index == 0 ? "data:text/csv;charset=utf-8," + line : line)
+    lineArray.push(line)
+  })
+
+  const csvContent = lineArray.join("\n")
+  writeFileSync(filename, csvContent)
 }
 
 main().catch((error) => {
