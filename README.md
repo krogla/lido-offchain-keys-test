@@ -34,7 +34,7 @@ npm run test
 npm run gas
 ```
 
-Script tries to deposit 100 validators keys using real Deposit contract code.
+Script tries to deposit `200` keys for 3 NOPs using real Deposit contract code.
 
 The scrip will form 2 csv files at repo root: `gas_per_1key_deposit.csv` and `gas_per_1root_add.csv`
 

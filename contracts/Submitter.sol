@@ -3,7 +3,6 @@ pragma solidity ^0.8.6;
 
 import "solidity-bytes-utils/contracts/BytesLib.sol";
 import "./NOR.sol";
-import "hardhat/console.sol";
 
 interface IDepositContract {
   /// @notice A processed deposit event.
@@ -96,31 +95,19 @@ contract Submitter {
     require(depositNonce == _depositNonce++, "Wrong deposit nonce");
     // require(keys.length % _keysPerBatch == 0, "Invalid keys length");
     NOR.OperatorOffsets memory opsOfs;
-    uint256 gas = gasleft();
     NOR.OperatorKeys[] memory opsKeys = _nor.calcKeysToUse(keysToDeposit);
-    // console.log("calcKeysToUse gas", gas - gasleft());
     uint256 usedKeys;
     uint256 totalUsedKeys;
 
     for (uint256 i = 0; i < opsKeys.length; ++i) {
-      // console.log(">>>>op", opsKeys[i].opId);
-      gas = gasleft();
+
       (uint256 from, uint256 to) = _nor._getFromTo(opsKeys[i], opsOfs);
-      // uint256 from = (opsData[opsKeys[i].opId].usedKeys % _keysPerBatch) + opsOfs.keysOffset;
-      // uint256 to = from + opsKeys[i].keysToUse;
-      // console.log("keys to deposit", to - from);
-      // `opsOfs` contains updated offsets in keys and proofs arrays
       (opsOfs, usedKeys) = _nor._useOpKeys(opsKeys[i], opsOfs, keys, proofs);
       totalUsedKeys += usedKeys;
       require(usedKeys == to - from, "OP's usedKeys and keysToUse missmatch");
-      // console.log("keys to deposit", usedKeys);
-      // console.log("_useOpKeys gas", gas - gasleft());
-      // console.log("from, to", from, to);
-      gas = gasleft();
       for (uint256 j = from; j < to; ++j) {
         _stake(keys[j].key, keys[j].sign);
       }
-      // console.log("_stake gas", gas - gasleft());
       emit Deposited(opsKeys[i].opId, usedKeys);
     }
     require(totalUsedKeys == keysToDeposit, "totalUsedKeys and keysToDeposit missmatch");

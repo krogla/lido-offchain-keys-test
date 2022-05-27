@@ -17,7 +17,7 @@ async function main() {
   await subm.deployed()
   await nor.setSubmitter(subm.address)
 
-  const keysToDeposit = 100
+  const keysToDeposit = 200
   const treeSizes = [2, 4, 8, 16, 32, 64, 1024]
   const keysPerBatches = [1, 2, 3, 4, 8, 16]
 
@@ -47,15 +47,24 @@ async function main() {
   writeCSV(gasAddRoot, "treeSize \\ keysPerBatch", "gas_per_1root_add.csv")
 
   async function test1(keysToDeposit: number, treeSize: number, keysPerBatch: number) {
-    const treeCnt = Math.ceil(keysToDeposit / keysPerBatch / treeSize)
+    const nopCnt = 3
+    const treeCnt = Math.ceil(keysToDeposit / keysPerBatch / treeSize / nopCnt)
     const nopParams = [
+      {
+        treeSizes: new Array(treeCnt).fill(treeSize),
+        ipfsURIs: new Array(treeCnt).fill("dummyIpfsHash"),
+      },
+      {
+        treeSizes: new Array(treeCnt).fill(treeSize),
+        ipfsURIs: new Array(treeCnt).fill("dummyIpfsHash"),
+      },
       {
         treeSizes: new Array(treeCnt).fill(treeSize),
         ipfsURIs: new Array(treeCnt).fill("dummyIpfsHash"),
       },
     ]
     console.log(
-      `deposit ${keysToDeposit} keys to 1 op with ${treeCnt} trees, ${treeSize} batched per tree and ${keysPerBatch} keysPerBatch`
+      `deposit ${keysToDeposit} keys to ${nopCnt} op with ${treeCnt} trees, ${treeSize} batched per tree and ${keysPerBatch} keysPerBatch`
     )
     const snapshotId = await network.provider.send("evm_snapshot")
     let a = 32 * keysToDeposit
@@ -79,7 +88,7 @@ async function main() {
     const r = await tx.wait()
     console.log("Add root gas used:", cost.toNumber(), "Deposit gas used:", r.gasUsed.toNumber())
     line.push(r.gasUsed.toNumber() / keysToDeposit)
-    line2.push(cost.toNumber() / treeCnt)
+    line2.push(cost.toNumber() / treeCnt / nopCnt)
     await network.provider.send("evm_revert", [snapshotId])
   }
 }
