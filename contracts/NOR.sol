@@ -107,6 +107,14 @@ contract NOR {
     return _depositNonce;
   }
 
+  function getTotalKeys() external view returns (uint256) {
+    return _totalKeys;
+  }
+
+  function getDepositedKeys() external view returns (uint256) {
+    return _depositedKeys;
+  }
+
   function getOperatorTotalRoots(uint256 opId) public view returns (uint256) {
     return opsData[opId].roots.length;
   }
@@ -200,34 +208,6 @@ contract NOR {
       }
     }
     return (opsOfs, usedKeys);
-  }
-
-  function checkOpRoot1(
-    OperatorRoot memory root,
-    uint256 keysToUse,
-    OperatorOffsets memory opsOfs,
-    KeySign[] calldata keys,
-    bytes32[] calldata proofs
-  )
-    internal
-    view
-    virtual
-    returns (
-      uint256 keysToProcess,
-      uint256 freeKeys,
-      OperatorOffsets memory
-    )
-  {
-    freeKeys = root.treeSize - root.usedKeys;
-    keysToProcess = freeKeys < keysToUse ? freeKeys : keysToUse;
-    if (keysToProcess > 0) {
-      bytes32 calcedRoot;
-      bytes32[] memory hashes;
-      (opsOfs.keysOffset, hashes) = prepKeysHashes(keysToProcess, opsOfs.keysOffset, keys);
-      (opsOfs.proofsOffset, calcedRoot) = calcTreeRoot(root.usedKeys, root.treeSize, opsOfs.proofsOffset, hashes, proofs);
-      require(root.merkleRoot == calcedRoot, "Wrong root!");
-    }
-    return (keysToProcess, freeKeys - keysToProcess, opsOfs);
   }
 
   function checkOpRoot(
