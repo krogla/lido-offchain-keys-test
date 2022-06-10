@@ -11,7 +11,7 @@ The NOR contract features:
 - each tree can contain a different number of keys (a multiple of degree 2)
 - key distribution balancer between operators
 
-Also helper functions for tests, can serve as a starting point for the creation of a toolkit for node operators.
+Also, helper functions for tests can serve as a starting point for the creation of a toolkit for node operators.
 
 ## requirements
 
