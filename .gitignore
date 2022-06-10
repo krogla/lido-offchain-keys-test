@@ -16,13 +16,3 @@ secrets.json
 
 tmp/
 /.openzeppelin/unknown-31337.json
-
-__pycache__
-.history
-.hypothesis/
-build/
-reports/
-/venv
-
-gas_per_1key_deposit.csv
-gas_per_1root_add.csv

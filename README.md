@@ -2,18 +2,21 @@
 
 Inspired by https://github.com/almsh/offchain-keys-playground prototype.
 
-The main points that were solved, that were missed in prototype.
+The repository contains two separate contracts: the Submitter contract to simulate the Ether deposit process, and the Node Operators Registry (NOR) contract using Merkle tree roots.
 
-1. Limitation of deposit only keys amounts which are multiples of the package size. That is, having a package size of 4 keys, it is impossible to deposit 3 keys.
-2. Limitation to make deposits only to one operator per one call. If there are more keys than the free keys amount of operator, it is necessary to form and make other calls.
-3. As a consequence of #2, the balancing of key deposits between operators is not taken into account.
-4. Limiting one operator to one key tree, which prevents the operator from dynamically adding keys in the future.
+The NOR contract features:
+
+- supports multiple operators
+- unlimited number of key's trees per each operator
+- each tree can contain a different number of keys (a multiple of degree 2)
+- key distribution balancer between operators
+
+Also helper functions for tests, can serve as a starting point for the creation of a toolkit for node operators.
 
 ## requirements
 
 - nodejs
 - npm
-
 
 ## prepare
 
